@@ -12,7 +12,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v2
 
-      - name: Prepare tags
+      - name: Prepare docker tags
         id: prep
         run: |
           DOCKER_IMAGE=$(echo $GITHUB_REPOSITORY | sed 's/docker-//')
@@ -22,28 +22,6 @@ jobs:
           fi
           TAGS="$TAGS,${DOCKER_IMAGE}:latest,ghcr.io/${DOCKER_IMAGE}:latest"
           echo ::set-output name=tags::${TAGS}
-
-      # - name: Prepare DockerHub tags
-      #   id: dockerhub_prep
-      #   run: |
-      #     DOCKER_IMAGE=${GITHUB_REPOSITORY#docker-}
-      #     if [[ "$GITHUB_REF" == refs/tags/* ]]; then
-      #       VERSION=${GITHUB_REF#refs/tags/}
-      #       TAGS="${DOCKER_IMAGE}:${VERSION}"
-      #     fi
-      #     TAGS="$TAGS,${DOCKER_IMAGE}:latest"
-      #     echo ::set-output name=tags::${TAGS}
-
-      # - name: Prepare GitHub tags
-      #   id: github_prep
-      #   run: |
-      #     DOCKER_IMAGE=ghcr.io/${GITHUB_REPOSITORY#docker-}
-      #     if [[ "$GITHUB_REF" == refs/tags/* ]]; then
-      #       VERSION=${GITHUB_REF#refs/tags/}
-      #       TAGS="${DOCKER_IMAGE}:{VERSION}"
-      #     fi
-      #     TAGS="$TAGS,${DOCKER_IMAGE}:latest"
-      #     echo ::set-output name=tags::${TAGS}
 
       - name: Set up Docker Buildx
         id: buildx
@@ -57,7 +35,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-buildx-
 
-      - name: Login to GitHub Container Registry
+      - name: Login to GitHub
         if: github.event_name != 'pull_request'
         uses: docker/login-action@v1
         with:
@@ -78,53 +56,10 @@ jobs:
           context: ./
           file: ./Dockerfile
           builder: ${{ steps.buildx.outputs.name }}
-      #    push: false
           push: true
-      #    tags: ${{ steps.dockerhub_prep.outputs.tags }},${{ steps.github_prep.outputs.tags }}
           tags: ${{ steps.prep.outputs.tags }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
-
-      # -name: Build image
-      #   run: |
-      #     docker build . -t ${{ github.sha }}
-
-      # - name: Tag image
-      #   run: |
-      #     docker tag ${{ github.sha }} ${GITHUB_REPOSITORY#docker-}:${GITHUB_REF#refs/tags/}
-      #     docker tag ${{ github.sha }} ${GITHUB_REPOSITORY#docker-}:latest
-      #     docker tag ${{ github.sha }} ghcr.io/${GITHUB_REPOSITORY#docker-}:${GITHUB_REF#refs/tags/}
-      #     docker tag ${{ github.sha }} ghcr.io/${GITHUB_REPOSITORY#docker-}:latest
-
-      # - name: Login to GitHub Container Registry
-      #   #run: |
-      #   #  echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
-      #   if: github.event_name != 'pull_request'
-      #   uses: docker/login-action@v1
-      #   with:
-      #     registry: ghcr.io
-      #     username: ${{ github.repository_owner }}
-      #     password: ${{ secrets.GHCR_TOKEN }}
-
-      # - name: Push tags to GitHub Container Registry
-      #   run: |
-      #     docker push ghcr.io/${GITHUB_REPOSITORY#docker-}:${GITHUB_REF#refs/tags/}
-      #     docker push ghcr.io/${GITHUB_REPOSITORY#docker-}:latest
-
-      # - name: Login to DockerHub
-      #   #if: ${{ env.DOCKER_HUB_USERNAME && env.DOCKER_HUB_TOKEN }}
-      #   #run: |
-      #   #  echo ${{ secrets.DOCKER_HUB_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-      #   uses: docker/login-action@v1
-      #   with:
-      #     username: ${{ secrets.DOCKER_HUB_USERNAME }}
-      #     password: ${{ secrets.DOCKER_HUB_TOKEN }}
-
-      # - name: Push tags to DockerHub
-      #   if: ${{ env.DOCKER_HUB_USERNAME && env.DOCKER_HUB_TOKEN }}
-      #   run: |
-      #     docker push ${GITHUB_REPOSITORY#docker-}:${GITHUB_REF#refs/tags/}
-      #     docker push ${GITHUB_REPOSITORY#docker-}:latest
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
