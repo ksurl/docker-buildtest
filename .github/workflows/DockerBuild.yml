@@ -15,7 +15,7 @@ jobs:
       - name: Prepare tags
         id: prep
         run: |
-          DOCKER_IMAGE=${GITHUB_REPOSITORY#docker-}
+          DOCKER_IMAGE=$(echo $GITHUB_REPOSITORY | sed 's/docker-//')
           if [[ "$GITHUB_REF" == refs/tags/* ]]; then
             VERSION=${GITHUB_REF#refs/tags/}
             TAGS="${DOCKER_IMAGE}:${VERSION},ghcr.io/${DOCKER_IMAGE}:${VERSION}"
