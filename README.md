@@ -1,6 +1,3 @@
 # Docker testing
 
-<!-- [![Release](https://img.shields.io/github/release/ksurl/docker-buildtest.svg?style=for-the-badge)](https://github.com/ksurl/docker-buildtest/releases/latest)
-[![Release](https://img.shields.io/github/release/ksurl/docker-buildtest.svg?style=for-the-badge)](https://github.com/ksurl/docker-buildtest/releases/latest) -->
-
-[![Build](https://github.com/ksurl/docker-buildtest/workflows/Build/badge.svg)](https://github.com/ksurl/docker-buildtest)
+![](https://img.shields.io/github/v/tag/ksurl/docker-buildtest?label=image%20version&logo=docker) ![](https://img.shields.io/docker/image-size/ksurl/buildtest/latest?color=lightgrey&logo=Docker) [![](https://img.shields.io/github/workflow/status/ksurl/docker-buildtest/Build?label=build&logo=Docker)](https://github.com/ksurl/docker-buildtest/actions?query=workflow%3Abuild)
