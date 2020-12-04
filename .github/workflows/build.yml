@@ -9,13 +9,22 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Actions Start Discord
+        uses: sarisia/actions-status-discord@v1.8.0
+        if: always()
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          title: "Starting new build"
+          noprefix: true
+          color: 0xf5d442
+
       - name: Checkout repo
         uses: actions/checkout@v2
 
       - name: Prepare docker tags
         id: prep
         run: |
-          DOCKER_IMAGE=$(echo $GITHUB_REPOSITORY | sed 's/docker-//')
+          DOCKER_IMAGE=${GITHUB_REPOSITORY/docker-/}
           if [[ "$GITHUB_REF" == refs/tags/* ]]; then
             VERSION=${GITHUB_REF#refs/tags/}
             TAGS="${DOCKER_IMAGE}:${VERSION},ghcr.io/${DOCKER_IMAGE}:${VERSION}"
