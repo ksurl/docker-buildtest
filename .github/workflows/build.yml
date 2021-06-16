@@ -32,6 +32,18 @@ jobs:
           TAGS="$TAGS,${DOCKER_IMAGE}:latest,ghcr.io/${DOCKER_IMAGE}:latest"
           echo ::set-output name=tags::${TAGS}
 
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: ${GITHUB_REPOSITORY/docker-/},ghcr.io/${GITHUB_REPOSITORY/docker-/}
+          tags: |
+            type=semver,pattern={{version}}
+          #tags: |
+          #  type=match,pattern=(\d.)+\d
+          #tags: |
+          #  type=ref,event=tag
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
         with:
@@ -72,7 +84,8 @@ jobs:
           builder: ${{ steps.buildx.outputs.name }}
           push: true
           platforms: linux/amd64,linux/arm/v7,linux/arm64
-          tags: ${{ steps.prep.outputs.tags }}
+          #tags: ${{ steps.prep.outputs.tags }}
+          tags: ${{ steps.meta.outputs.tags }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
 
