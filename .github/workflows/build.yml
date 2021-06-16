@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Actions Start Discord
-        uses: sarisia/actions-status-discord@v1.8.0
+        uses: sarisia/actions-status-discord@v1.8.6
         if: always()
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
@@ -21,16 +21,19 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v2
 
-      - name: Prepare docker tags
-        id: prep
+      - name: Prepare docker image name
+        id: image_names
         run: |
-          DOCKER_IMAGE=${GITHUB_REPOSITORY/docker-/}
-          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
-            VERSION=${GITHUB_REF#refs/tags/}
-            TAGS="${DOCKER_IMAGE}:${VERSION},ghcr.io/${DOCKER_IMAGE}:${VERSION}"
-          fi
-          TAGS="$TAGS,${DOCKER_IMAGE}:latest,ghcr.io/${DOCKER_IMAGE}:latest"
-          echo ::set-output name=tags::${TAGS}
+          IMAGES="${GITHUB_REPOSITORY/docker-/},ghcr.io/${GITHUB_REPOSITORY/docker-/}"
+          echo ::set-output name=images::${IMAGES}
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: ${{ steps.image_names.outputs.images }}
+          tags: |
+            type=ref,event=tag
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
@@ -72,7 +75,7 @@ jobs:
           builder: ${{ steps.buildx.outputs.name }}
           push: true
           platforms: linux/amd64,linux/arm/v7,linux/arm64
-          tags: ${{ steps.prep.outputs.tags }}
+          tags: ${{ steps.meta.outputs.tags }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
 
@@ -80,7 +83,7 @@ jobs:
         run: echo ${{ steps.docker_build.outputs.digest }}
 
       - name: Actions Status Discord
-        uses: sarisia/actions-status-discord@v1.8.0
+        uses: sarisia/actions-status-discord@v1.8.6
         if: always()
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
