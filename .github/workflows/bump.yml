@@ -5,7 +5,7 @@ on:
     branches:
       - bump-tag
     paths:
-      - requirements.txt
+      - test.txt
 
 jobs:
   bump:
