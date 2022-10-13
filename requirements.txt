@@ -1,0 +1,2 @@
+flexget==3.3.32
+transmission-rpc==3.4.0
