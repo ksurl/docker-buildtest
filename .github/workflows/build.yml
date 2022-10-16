@@ -17,16 +17,12 @@ jobs:
       #    title: "Starting new build"
       #    noprefix: true
       #    color: 0xf5d442
-
-      - name: Prepare commit sha
-        id: sha
+      
+      - name: Prepare Pushover url
+        id: url
         run: |
-          if [ -n "$github.event.pull_request.head.sha" ]; then
-            SHA="$github.event.pull_request.head.sha"
-          else
-            SHA="$github.sha"
-          fi
-          echo ::set-output name=sha::${SHA}
+          URL="https://github.com/${GITHUB_REPOSITORY}/commit/${{ github.sha }}/checks"
+          echo ::set-output name=url::${URL}
 
       - name: Actions Start Pushover
         uses: umahmood/pushover-actions@main
@@ -37,7 +33,7 @@ jobs:
           status: ${{ job.status }}
           title: "Build Status"
           message: "Workflow started"
-          url: "https://github.com/${GITHUB_REPOSITORY}/commit/${{ steps.sha.outputs.sha }}/checks"
+          url: "${{ steps.url.outputs.url }}"
           url_title: "build"
 
       - name: Checkout repo
