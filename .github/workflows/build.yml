@@ -21,7 +21,7 @@ jobs:
       - name: Prepare commit sha
         id: sha
         run: |
-          if [ -n "$github.event.pull_request.head.sha" ] then
+          if [ -n "$github.event.pull_request.head.sha" ]; then
             SHA="$github.event.pull_request.head.sha"
           else
             SHA="$github.sha"
