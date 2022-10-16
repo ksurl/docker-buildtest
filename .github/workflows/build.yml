@@ -9,14 +9,36 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Actions Start Discord
-        uses: sarisia/actions-status-discord@v1
-        if: always()
+      #- name: Actions Start Discord
+      #  uses: sarisia/actions-status-discord@v1
+      #  if: always()
+      #  with:
+      #    webhook: ${{ secrets.DISCORD_WEBHOOK }}
+      #    title: "Starting new build"
+      #    noprefix: true
+      #    color: 0xf5d442
+
+      - name: Prepare commit sha
+        id: sha
+        run: |
+          if [ -n "$github.event.pull_request.head.sha" ] then
+            SHA="$github.event.pull_request.head.sha"
+          else
+            SHA="$github.sha"
+          fi
+          echo ::set-output name=sha::${SHA}
+
+      - name: Actions Start Pushover
+        uses: umahmood/pushover-actions@v1
+        env:
+          PUSHOVER_TOKEN: ${{ secrets.PUSHOVER_TOKEN }}
+          PUSHOVER_USER: ${{ secrets.PUSHOVER_USER }}
         with:
-          webhook: ${{ secrets.DISCORD_WEBHOOK }}
-          title: "Starting new build"
-          noprefix: true
-          color: 0xf5d442
+          status: ${{ job.status }}
+          title: "Build Status"
+          message: "Workflow started"
+          url: "https://github.com/${GITHUB_REPOSITORY}/commit/${{ steps.sha.outputs.sha }}/checks"
+          url_title: "build"
 
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -33,7 +55,10 @@ jobs:
         with:
           images: ${{ steps.image_names.outputs.images }}
           tags: |
-            type=ref,event=tag
+            #type=ref,event=tag
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major.minor}}
+            type=semver,pattern={{major}}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -75,8 +100,20 @@ jobs:
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
 
-      - name: Actions Status Discord
-        uses: sarisia/actions-status-discord@v1
-        if: always()
+      #- name: Actions Status Discord
+      #  uses: sarisia/actions-status-discord@v1
+      #  if: always()
+      #  with:
+      #    webhook: ${{ secrets.DISCORD_WEBHOOK }}
+
+      - name: Actions Status Pushover
+        uses: umahmood/pushover-actions@v1
+        env:
+          PUSHOVER_TOKEN: ${{ secrets.PUSHOVER_TOKEN }}
+          PUSHOVER_USER: ${{ secrets.PUSHOVER_USER }}
         with:
-          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          status: ${{ job.status }}
+          title: "Build status"
+          message: "Workflow completed"
+          url: "https://github.com/${GITHUB_REPOSITORY}/commits/${{ steps.sha.outputs.sha }}/checks"
+          url_title: "build"
