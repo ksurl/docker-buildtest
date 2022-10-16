@@ -29,7 +29,7 @@ jobs:
           echo ::set-output name=sha::${SHA}
 
       - name: Actions Start Pushover
-        uses: umahmood/pushover-actions@v1
+        uses: umahmood/pushover-actions@main
         env:
           PUSHOVER_TOKEN: ${{ secrets.PUSHOVER_TOKEN }}
           PUSHOVER_USER: ${{ secrets.PUSHOVER_USER }}
@@ -107,7 +107,7 @@ jobs:
       #    webhook: ${{ secrets.DISCORD_WEBHOOK }}
 
       - name: Actions Status Pushover
-        uses: umahmood/pushover-actions@v1
+        uses: umahmood/pushover-actions@main
         env:
           PUSHOVER_TOKEN: ${{ secrets.PUSHOVER_TOKEN }}
           PUSHOVER_USER: ${{ secrets.PUSHOVER_USER }}
