@@ -22,8 +22,9 @@ jobs:
         run: |
           curl \
             -u ${{ secrets.NTFY_CRED }} \
-            -H "t: Build status" \
-            -d "Repo: ${{ github.repository }}\nCommit: ${{ github.sha }}\nRef: ${{ github.ref }}\nStatus: ${{ job.status }}\nWorkflow started" \
+            -H "Title: Build status" \
+            -H "Content-Type: text/plain \
+            -d $'Repo: ${{ github.repository }}\nCommit: ${{ github.sha }}\nRef: ${{ github.ref }}\nStatus: ${{ job.status }}\nWorkflow started' \
             ${{ secrets.NTFY_URL }}
       
       - name: Prepare Pushover url
@@ -139,6 +140,7 @@ jobs:
         run: |
           curl \
             -u ${{ secrets.NTFY_CRED }} \
-            -H "t: Build status" \
-            -d "Repo: ${{ github.repository }}\nCommit: ${{ github.sha }}\nRef: ${{ github.ref }}\nStatus: ${{ job.status }}\nWorkflow completed" \
+            -H "Title: Build status" \
+            -H "Content-Type: text/plain \
+            -d $'Repo: ${{ github.repository }}\nCommit: ${{ github.sha }}\nRef: ${{ github.ref }}\nStatus: ${{ job.status }}\nWorkflow completed' \
             ${{ secrets.NTFY_URL }}
