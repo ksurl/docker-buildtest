@@ -23,7 +23,7 @@ jobs:
           curl \
             -u ${{ secrets.NTFY_CRED }} \
             -H "Title: Build status" \
-            -H "Content-Type: text/plain \
+            -H "Content-Type: text/plain" \
             -d $'Repo: ${{ github.repository }}\nCommit: ${{ github.sha }}\nRef: ${{ github.ref }}\nStatus: ${{ job.status }}\nWorkflow started' \
             ${{ secrets.NTFY_URL }}
       
@@ -141,6 +141,6 @@ jobs:
           curl \
             -u ${{ secrets.NTFY_CRED }} \
             -H "Title: Build status" \
-            -H "Content-Type: text/plain \
+            -H "Content-Type: text/plain" \
             -d $'Repo: ${{ github.repository }}\nCommit: ${{ github.sha }}\nRef: ${{ github.ref }}\nStatus: ${{ job.status }}\nWorkflow completed' \
             ${{ secrets.NTFY_URL }}
