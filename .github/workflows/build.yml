@@ -17,12 +17,20 @@ jobs:
       #    title: "Starting new build"
       #    noprefix: true
       #    color: 0xf5d442
+
+      - name: Actions Start Ntfy
+        uses: NiNiyas/ntfy-action@master
+        with:
+          url: ${{ secrets.NTFY_URL }}
+          topic: ${{ secrets.NTFY_TOPIC }}
+          #headers: ${{ secrets.NTFY_HEADERS }}
+          details: New build started
       
       - name: Prepare Pushover url
         id: url
         run: |
           URL="https://github.com/${GITHUB_REPOSITORY}/commit/${{ github.sha }}/checks"
-          echo ::set-output name=url::${URL}
+          echo "pushover_url=$URL" >> $GITHUB_ENV
 
       - name: Actions Start Pushover
         uses: umahmood/pushover-actions@main
@@ -33,7 +41,7 @@ jobs:
           status: ${{ job.status }}
           title: "Build Status"
           message: "Workflow started"
-          url: "${{ steps.url.outputs.url }}"
+          url: "${{ env.pushover_url }}"
           url_title: "build"
 
       - name: Checkout repo
@@ -43,15 +51,14 @@ jobs:
         id: image_names
         run: |
           IMAGES="${GITHUB_REPOSITORY/docker-/},ghcr.io/${GITHUB_REPOSITORY/docker-/}"
-          echo ::set-output name=images::${IMAGES}
+          echo "docker_images=$IMAGES" >> $GITHUB_ENV
 
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: ${{ steps.image_names.outputs.images }}
+          images: ${{ env.docker_images }}
           tags: |
-            #type=ref,event=tag
             type=semver,pattern={{version}}
             type=semver,pattern={{major.minor}}
             type=semver,pattern={{major}}
@@ -127,3 +134,10 @@ jobs:
           message: "Workflow completed"
           url: "https://github.com/${GITHUB_REPOSITORY}/commits/${{ steps.sha.outputs.sha }}/checks"
           url_title: "build"
+
+      - name: Actions Status Ntfy
+        uses: NiNiyas/ntfy-action@master
+        with:
+          url: ${{ secrets.NTFY_URL }}
+          topic: ${{ secrets.NTFY_TOPIC }}
+          details: Workflow has finished
