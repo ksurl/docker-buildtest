@@ -23,8 +23,7 @@ jobs:
         with:
           url: ${{ secrets.NTFY_URL }}
           topic: ${{ secrets.NTFY_TOPIC }}
-          #headers: ${{ secrets.NTFY_HEADERS }}
-          details: New build started
+          headers: ${{ secrets.NTFY_HEADERS }}
       
       - name: Prepare Pushover url
         id: url
@@ -140,4 +139,4 @@ jobs:
         with:
           url: ${{ secrets.NTFY_URL }}
           topic: ${{ secrets.NTFY_TOPIC }}
-          details: Workflow has finished
+          headers: ${{ secrets.NTFY_HEADERS }}
