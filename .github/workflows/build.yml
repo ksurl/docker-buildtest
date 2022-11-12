@@ -19,11 +19,16 @@ jobs:
       #    color: 0xf5d442
 
       - name: Actions Start Ntfy
-        uses: NiNiyas/ntfy-action@master
-        with:
-          url: ${{ secrets.NTFY_URL }}
-          topic: ${{ secrets.NTFY_TOPIC }}
-          headers: ${{ secrets.NTFY_HEADERS }}
+        run: |
+          curl \
+            -u ${{ secrets.NTFY_CRED }} \
+            -H "t: Build status" \
+            -d "Repo: ${{ github.repository }}
+Commit: ${{ github.sha }}
+Ref: ${{ github.ref }}
+Status: ${{ job.status }}
+Workflow started" \
+            ${{ secrets.NTFY_URL }}
       
       - name: Prepare Pushover url
         id: url
@@ -135,8 +140,13 @@ jobs:
           url_title: "build"
 
       - name: Actions Status Ntfy
-        uses: NiNiyas/ntfy-action@master
-        with:
-          url: ${{ secrets.NTFY_URL }}
-          topic: ${{ secrets.NTFY_TOPIC }}
-          headers: ${{ secrets.NTFY_HEADERS }}
+        run: |
+          curl \
+            -u ${{ secrets.NTFY_CRED }} \
+            -H "t: Build status" \
+            -d "Repo: ${{ github.repository }}
+Commit: ${{ github.sha }}
+Ref: ${{ github.ref }}
+Status: ${{ job.status }}
+Workflow completed" \
+            ${{ secrets.NTFY_URL }}
