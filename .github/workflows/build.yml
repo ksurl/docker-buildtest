@@ -24,26 +24,33 @@ jobs:
             -u ${{ secrets.NTFY_CRED }} \
             -H "Title: Build status" \
             -H "Content-Type: text/plain" \
-            -d $'Repo: ${{ github.repository }}\nCommit: ${{ github.sha }}\nRef: ${{ github.ref }}\nStatus: ${{ job.status }}\nWorkflow started' \
+            -d $'Repo: ${{ github.repository }}\nCommit: ${{ github.sha }}\nRef: ${{ github.ref }}\nWorkflow started' \
             ${{ secrets.NTFY_URL }}
       
-      - name: Prepare Pushover url
-        id: url
-        run: |
-          URL="https://github.com/${GITHUB_REPOSITORY}/commit/${{ github.sha }}/checks"
-          echo "pushover_url=$URL" >> $GITHUB_ENV
+      #- name: Prepare Pushover url
+      #  id: url
+      #  run: |
+      #    URL="https://github.com/${GITHUB_REPOSITORY}/commit/${{ github.sha }}/checks"
+      #    echo "pushover_url=$URL" >> $GITHUB_ENV
 
       - name: Actions Start Pushover
-        uses: umahmood/pushover-actions@main
-        env:
-          PUSHOVER_TOKEN: ${{ secrets.PUSHOVER_TOKEN }}
-          PUSHOVER_USER: ${{ secrets.PUSHOVER_USER }}
-        with:
-          status: ${{ job.status }}
-          title: "Build Status"
-          message: "Workflow started"
-          url: "${{ env.pushover_url }}"
-          url_title: "build"
+        #uses: umahmood/pushover-actions@main
+        #env:
+        #  PUSHOVER_TOKEN: ${{ secrets.PUSHOVER_TOKEN }}
+        #  PUSHOVER_USER: ${{ secrets.PUSHOVER_USER }}
+        #with:
+        #  status: ${{ job.status }}
+        #  title: "Build Status"
+        #  message: "Workflow started"
+        #  url: "${{ env.pushover_url }}"
+        #  url_title: "build"
+        run: |
+          curl -s \
+            --form-string "token=${{ secrets.PUSHOVER_TOKEN }}" \
+            --form-string "user=${{ secrets.PUSHOVER_USER }}" \
+            --form-string "title=Build status" \
+            --form-string $'Repo: ${{ github.repository }}\nCommit: ${{ github.sha }}\nRef: ${{ github.ref }}\nWorkflow started' \
+            https://api.pushover.net/1/messages.json
 
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -125,16 +132,22 @@ jobs:
       #    webhook: ${{ secrets.DISCORD_WEBHOOK }}
 
       - name: Actions Status Pushover
-        uses: umahmood/pushover-actions@main
-        env:
-          PUSHOVER_TOKEN: ${{ secrets.PUSHOVER_TOKEN }}
-          PUSHOVER_USER: ${{ secrets.PUSHOVER_USER }}
-        with:
-          status: ${{ job.status }}
-          title: "Build status"
-          message: "Workflow completed"
-          url: "https://github.com/${GITHUB_REPOSITORY}/commits/${{ steps.sha.outputs.sha }}/checks"
-          url_title: "build"
+        #uses: umahmood/pushover-actions@main
+        #env:
+        #  PUSHOVER_TOKEN: ${{ secrets.PUSHOVER_TOKEN }}
+        #  PUSHOVER_USER: ${{ secrets.PUSHOVER_USER }}
+        #with:
+        #  status: ${{ job.status }}
+        #  title: "Build status"
+        #  message: "Workflow completed"
+        #  url: "https://github.com/${GITHUB_REPOSITORY}/commits/${{ steps.sha.outputs.sha }}/checks"
+        #  url_title: "build"
+        curl -s \
+          --form-string "token=${{ secrets.PUSHOVER_TOKEN }}" \
+          --form-string "user=${{ secrets.PUSHOVER_USER }}" \
+          --form-string "title=Build status" \
+          --form-string $'Repo: ${{ github.repository }}\nCommit: ${{ github.sha }}\nRef: ${{ github.ref }}\nStatus: ${{ job.status }}\nWorkflow completed' \
+          https://api.pushover.net/1/messages.json
 
       - name: Actions Status Ntfy
         run: |
