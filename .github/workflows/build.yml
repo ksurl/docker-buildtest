@@ -37,7 +37,7 @@ jobs:
           BODY=$(cat << EOF
           Repo: ${{ github.repository }}
           Commit: ${{ github.sha }}
-          Ref: ${{ github.sha }}
+          Ref: ${{ github.ref }}
           EOF
           )
           echo "pushover_message<<EOF" >> $GITHUB_ENV
