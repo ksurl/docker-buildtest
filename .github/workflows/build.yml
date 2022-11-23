@@ -142,7 +142,8 @@ jobs:
         #  message: "Workflow completed"
         #  url: "https://github.com/${GITHUB_REPOSITORY}/commits/${{ steps.sha.outputs.sha }}/checks"
         #  url_title: "build"
-        curl -s \
+        run: |
+          curl -s \
           --form-string "token=${{ secrets.PUSHOVER_TOKEN }}" \
           --form-string "user=${{ secrets.PUSHOVER_USER }}" \
           --form-string "title=Build status" \
