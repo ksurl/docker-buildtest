@@ -3,5 +3,6 @@
   "extends": [
     "config:base"
   ],
-  "enabledManagers": [ "docker-compose"]
+  "enabledManagers": [ "docker-compose"],
+  "schedule": ["before 2am"]
 }
