@@ -3,6 +3,5 @@
   "extends": [
     "config:base"
   ],
-  "enabledManagers": [ "docker-compose"],
-  "schedule": ["before 2am"]
+  "enabledManagers": [ "github-actions","dockerfile","docker-compose" ]
 }
