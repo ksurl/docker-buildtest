@@ -187,7 +187,7 @@ jobs:
           Commit: ${{ github.sha }}
           Ref: ${{ github.ref }}
           Status: ${{ job.status }}
-          Workflow completed'
+          Workflow completed
           EOF
           )
           curl \
