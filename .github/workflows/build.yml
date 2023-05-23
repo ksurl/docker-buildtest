@@ -20,11 +20,18 @@ jobs:
 
       - name: Actions Start Ntfy
         run: |
+          ntfy_message=$(cat << EOF
+          Repo: ${{ github.repository }}
+          Commit: ${{ github.sha }}
+          Ref: ${{ github.ref }}
+          Workflow started
+          EOF
+          )
           curl \
-            -H "Authorization: Bearer ${{ secrets.NTFY_TOKEN }}"
+            -H "Authorization: Bearer ${{ secrets.NTFY_TOKEN }}" \
             -H "Title: Build status" \
             -H "Content-Type: text/plain" \
-            -d $'Repo: ${{ github.repository }}\nCommit: ${{ github.sha }}\nRef: ${{ github.ref }}\nWorkflow started' \
+            -d "$ntfy_message" \
             ${{ secrets.NTFY_URL }}
       
       #- name: Prepare Pushover url
@@ -32,17 +39,17 @@ jobs:
       #  run: |
       #    URL="https://github.com/${GITHUB_REPOSITORY}/commit/${{ github.sha }}/checks"
       #    echo "pushover_url=$URL" >> $GITHUB_ENV
-      - name: Prepare Pushover message
-        run: |
-          BODY=$(cat << EOF
-          Repo: ${{ github.repository }}
-          Commit: ${{ github.sha }}
-          Ref: ${{ github.ref }}
-          EOF
-          )
-          echo "pushover_message<<EOF" >> $GITHUB_ENV
-          echo "$BODY" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
+      # - name: Prepare Pushover message
+      #   run: |
+      #     pushover_message=$(cat << EOF
+      #     Repo: ${{ github.repository }}
+      #     Commit: ${{ github.sha }}
+      #     Ref: ${{ github.ref }}
+      #     EOF
+      #     )
+      #     echo "pushover_message<<EOF" >> $GITHUB_ENV
+      #     echo "$BODY" >> $GITHUB_ENV
+      #     echo "EOF" >> $GITHUB_ENV
 
       - name: Actions Start Pushover
         #uses: umahmood/pushover-actions@main
@@ -56,11 +63,17 @@ jobs:
         #  url: "${{ env.pushover_url }}"
         #  url_title: "build"
         run: |
+          pushover_message=$(cat << EOF
+          Repo: ${{ github.repository }}
+          Commit: ${{ github.sha }}
+          Ref: ${{ github.ref }}
+          EOF
+          )          
           curl -s \
             --form-string "token=${{ secrets.PUSHOVER_TOKEN }}" \
             --form-string "user=${{ secrets.PUSHOVER_USER }}" \
             --form-string "title=Build started" \
-            --form-string "message=${{ env.pushover_message }}" \
+            --form-string "message=$pushover_message" \
             https://api.pushover.net/1/messages.json
 
       - name: Checkout repo
@@ -154,6 +167,12 @@ jobs:
         #  url: "https://github.com/${GITHUB_REPOSITORY}/commits/${{ steps.sha.outputs.sha }}/checks"
         #  url_title: "build"
         run: |
+          pushover_message=$(cat << EOF
+          Repo: ${{ github.repository }}
+          Commit: ${{ github.sha }}
+          Ref: ${{ github.ref }}
+          EOF
+          )          
           curl -s \
           --form-string "token=${{ secrets.PUSHOVER_TOKEN }}" \
           --form-string "user=${{ secrets.PUSHOVER_USER }}" \
@@ -163,9 +182,17 @@ jobs:
 
       - name: Actions Status Ntfy
         run: |
+          ntfy_message=$(cat << EOF
+          Repo: ${{ github.repository }}
+          Commit: ${{ github.sha }}
+          Ref: ${{ github.ref }}
+          Status: ${{ job.status }}
+          Workflow completed'
+          EOF
+          )
           curl \
-            -H "Authorization: Bearer ${{ secrets.NTFY_TOKEN }}"
+            -H "Authorization: Bearer ${{ secrets.NTFY_TOKEN }}" \
             -H "Title: Build status" \
             -H "Content-Type: text/plain" \
-            -d $'Repo: ${{ github.repository }}\nCommit: ${{ github.sha }}\nRef: ${{ github.ref }}\nStatus: ${{ job.status }}\nWorkflow completed' \
+            -d "$ntfy_message" \
             ${{ secrets.NTFY_URL }}
