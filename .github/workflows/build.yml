@@ -21,7 +21,7 @@ jobs:
       - name: Actions Start Ntfy
         run: |
           curl \
-            -u ${{ secrets.NTFY_CRED }} \
+            -H "Authorization: Bearer ${{ secrets.NTFY_TOKEN }}"
             -H "Title: Build status" \
             -H "Content-Type: text/plain" \
             -d $'Repo: ${{ github.repository }}\nCommit: ${{ github.sha }}\nRef: ${{ github.ref }}\nWorkflow started' \
@@ -164,7 +164,7 @@ jobs:
       - name: Actions Status Ntfy
         run: |
           curl \
-            -u ${{ secrets.NTFY_CRED }} \
+            -H "Authorization: Bearer ${{ secrets.NTFY_TOKEN }}"
             -H "Title: Build status" \
             -H "Content-Type: text/plain" \
             -d $'Repo: ${{ github.repository }}\nCommit: ${{ github.sha }}\nRef: ${{ github.ref }}\nStatus: ${{ job.status }}\nWorkflow completed' \
