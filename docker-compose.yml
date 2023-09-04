@@ -1,5 +1,5 @@
 services:
   buildtest:
-    image: alpine:3.18.0
+    image: alpine:3.18.3
     command: [ "echo", "hello world" ]
     network_mode: none
