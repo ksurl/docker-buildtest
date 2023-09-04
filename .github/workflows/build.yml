@@ -8,16 +8,14 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - linux/amd64
+          - linux/arm
+          - linux/arm64
     steps:
-      #- name: Actions Start Discord
-      #  uses: sarisia/actions-status-discord@v1
-      #  if: always()
-      #  with:
-      #    webhook: ${{ secrets.DISCORD_WEBHOOK }}
-      #    title: "Starting new build"
-      #    noprefix: true
-      #    color: 0xf5d442
-
       - name: Actions Start Ntfy
         run: |
           ntfy_message=$(cat << EOF
@@ -33,35 +31,8 @@ jobs:
             -H "Content-Type: text/plain" \
             -d "$ntfy_message" \
             ${{ secrets.NTFY_URL }}
-      
-      #- name: Prepare Pushover url
-      #  id: url
-      #  run: |
-      #    URL="https://github.com/${GITHUB_REPOSITORY}/commit/${{ github.sha }}/checks"
-      #    echo "pushover_url=$URL" >> $GITHUB_ENV
-      # - name: Prepare Pushover message
-      #   run: |
-      #     pushover_message=$(cat << EOF
-      #     Repo: ${{ github.repository }}
-      #     Commit: ${{ github.sha }}
-      #     Ref: ${{ github.ref }}
-      #     EOF
-      #     )
-      #     echo "pushover_message<<EOF" >> $GITHUB_ENV
-      #     echo "$BODY" >> $GITHUB_ENV
-      #     echo "EOF" >> $GITHUB_ENV
 
       - name: Actions Start Pushover
-        #uses: umahmood/pushover-actions@main
-        #env:
-        #  PUSHOVER_TOKEN: ${{ secrets.PUSHOVER_TOKEN }}
-        #  PUSHOVER_USER: ${{ secrets.PUSHOVER_USER }}
-        #with:
-        #  status: ${{ job.status }}
-        #  title: "Build Status"
-        #  message: "Workflow started"
-        #  url: "${{ env.pushover_url }}"
-        #  url_title: "build"
         run: |
           pushover_message=$(cat << EOF
           Repo: ${{ github.repository }}
@@ -77,7 +48,7 @@ jobs:
             https://api.pushover.net/1/messages.json
 
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Prepare docker image name
         id: image_names
@@ -126,7 +97,7 @@ jobs:
           file: ./Dockerfile
           builder: ${{ steps.buildx.outputs.name }}
           push: true
-          platforms: linux/amd64
+          platforms: ${{ matrix.platform }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha, scope=${{ github.workflow }}
@@ -149,23 +120,7 @@ jobs:
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
 
-      #- name: Actions Status Discord
-      #  uses: sarisia/actions-status-discord@v1
-      #  if: always()
-      #  with:
-      #    webhook: ${{ secrets.DISCORD_WEBHOOK }}
-
       - name: Actions Status Pushover
-        #uses: umahmood/pushover-actions@main
-        #env:
-        #  PUSHOVER_TOKEN: ${{ secrets.PUSHOVER_TOKEN }}
-        #  PUSHOVER_USER: ${{ secrets.PUSHOVER_USER }}
-        #with:
-        #  status: ${{ job.status }}
-        #  title: "Build status"
-        #  message: "Workflow completed"
-        #  url: "https://github.com/${GITHUB_REPOSITORY}/commits/${{ steps.sha.outputs.sha }}/checks"
-        #  url_title: "build"
         run: |
           pushover_message=$(cat << EOF
           Repo: ${{ github.repository }}
