@@ -8,13 +8,13 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        platform:
-          - linux/amd64
-          - linux/arm
-          - linux/arm64
+    # strategy:
+    #   fail-fast: false
+    #   matrix:
+    #     platform:
+    #       - linux/amd64
+    #       - linux/arm
+    #       - linux/arm64
     steps:
       - name: Actions Start Ntfy
         run: |
@@ -89,11 +89,11 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-      - name: Prep cache
-        run: |
-          platform=${{ matrix.platform }}
-          platform=${platform//\//-}
-          echo "platform=$platform" >> $GITHUB_ENV
+      # - name: Prep cache
+      #   run: |
+      #     platform=${{ matrix.platform }}
+      #     platform=${platform//\//-}
+      #     echo "platform=$platform" >> $GITHUB_ENV
 
       - name: Build image
         id: docker_build
@@ -103,12 +103,12 @@ jobs:
           file: ./Dockerfile
           builder: ${{ steps.buildx.outputs.name }}
           push: true
-          platforms: ${{ matrix.platform }}
+          platforms: linux/amd64,linux/arm,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha, scope=${{ github.workflow }}-${{ env.platform }}
-          cache-to: type=gha, scope=${{ github.workflow }}-${{ env.platform }}
-
+          cache-from: type=gha, scope=${{ github.workflow }}
+          cache-to: type=gha, scope=${{ github.workflow }}
+          
       - name: Build Changelog
         id: changelog
         uses: mikepenz/release-changelog-builder-action@v4
