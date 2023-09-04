@@ -89,6 +89,12 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
+      - name: Prep cache
+        run: |
+          platform=${{ matrix.platform }}
+          platform=${platform//\//-}
+          echo "platform=$platform" >> $GITHUB_ENV
+
       - name: Build image
         id: docker_build
         uses: docker/build-push-action@v4
@@ -100,8 +106,8 @@ jobs:
           platforms: ${{ matrix.platform }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha, scope=${{ github.workflow }}
-          cache-to: type=gha, scope=${{ github.workflow }}
+          cache-from: type=gha, scope="${{ github.workflow }}-${{ env.platform }}"
+          cache-to: type=gha, scope="${{ github.workflow }}-${{ env.platform }}"
 
       - name: Build Changelog
         id: changelog
@@ -113,7 +119,6 @@ jobs:
 
       - name: Create GitHub Release
         uses: ncipollo/release-action@v1
-        if: ${{ matrix.platform }} == 'linux/amd64'
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           body: ${{ steps.changelog.outputs.changelog }}
